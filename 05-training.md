@@ -27,15 +27,18 @@ huggingface-cli login
 lerobot-train \
   --dataset.repo_id=bjahoor/so101_yellow_block \
   --policy.type=act \
+  --policy.repo_id=bjahoor/act_so101_yellow_block \
   --output_dir=outputs/train/act_yellow_block \
   --job_name=act_so101_yellow_block \
   --policy.device=cuda \
   --wandb.enable=false
 ```
 
+**`--policy.repo_id` is required** if you want the model auto-pushed to the Hub. Lerobot 0.4.4 has `push_to_hub=True` by default (`lerobot/configs/policies.py:70`) and an explicit check in `lerobot/configs/train.py:138` that errors out at startup with `"'policy.repo_id' argument missing"` if you don't set it. Either set it (recommended — model lands on the Hub ready to pull from the Jetson) OR pass `--policy.push_to_hub=false` to keep it local-only.
+
 Defaults: 100k steps, batch size 8. On a 3060 Ti at 640×480 / 2 cameras, ~5–10 hours for 100k steps; ~1–2 hours for 20k steps.
 
-After training, the checkpoint auto-pushes to `<your-hf-username>/<job_name>`. From the Jetson you reference it with `--policy.path=<hub-id>`.
+After training, the checkpoint pushes to whatever you set for `--policy.repo_id`. From the Jetson you reference it with `--policy.path=<that-same-id>`.
 
 ## If you want to compare multiple training runs
 

@@ -141,7 +141,17 @@ The auto-resolved `torch` wheel on aarch64 is CPU-only. `torch.cuda.is_available
 
 ---
 
-## 11. Cameras silently dropping fps
+## 11. `lerobot-train` crashes at startup with `'policy.repo_id' argument missing`
+
+**Symptom**: you run `lerobot-train --policy.type=act --dataset.repo_id=... --job_name=... --output_dir=...` and it errors out immediately with `'policy.repo_id' argument missing. Please specify it to push the model to the hub.`
+
+**Cause**: `push_to_hub` defaults to `True` (`lerobot/configs/policies.py:70`), and `lerobot/configs/train.py:138` has an explicit check that raises if push is on but `policy.repo_id` is unset.
+
+**Fix**: either pass `--policy.repo_id=<user>/<model-name>` (so it pushes to the Hub as that repo), OR pass `--policy.push_to_hub=false` (to skip pushing and keep the model local-only). `--job_name` does NOT auto-populate `policy.repo_id` despite what you'd expect.
+
+---
+
+## 12. Cameras silently dropping fps
 
 Some USB cameras negotiate down to YUYV (uncompressed, low fps over USB 2) if you don't explicitly request MJPG. For OpenCV cameras in lerobot, pass `fourcc: MJPG` in the camera config:
 ```
