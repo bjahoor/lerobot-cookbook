@@ -29,15 +29,28 @@ lerobot-record --robot.type=so101_follower --robot.port=/dev/ttyACM0 --robot.cam
 | `--dataset.encoder_threads=1` | 1 encoder thread leaves cores free for the capture loop. |
 | `--play_sounds=false` | **Mandatory.** TTS deadlocks on headless Jetson. See [99-gotchas.md](99-gotchas.md). |
 
-## If the run crashes mid-recording
+## Adding more episodes later (or recovering from a crash)
 
-Add `--resume=true` and set `--dataset.num_episodes=N` where **N = episodes to ADD this session, not the new total**. Example after 35/50 got saved before a crash:
+`--resume=true` works for BOTH: extending an existing dataset on purpose, AND continuing after a crash. Same flag.
 
+Key thing to remember: **`--dataset.num_episodes` with `--resume=true` is the number to ADD this session, NOT the new total.**
+
+Going from 50 → 100 episodes intentionally:
+```bash
+lerobot-record ... --dataset.num_episodes=50 --resume=true   # 50 old + 50 new = 100 total
+```
+
+Recovering after a crash at 35/50:
 ```bash
 lerobot-record ... --dataset.num_episodes=15 --resume=true   # 35 + 15 = 50
 ```
 
-**Don't `rm -rf` the dataset folder when resuming.** Do `rm -rf` only on a brand-new attempt where you want to start over.
+**Don't `rm -rf` the dataset folder when resuming** — it needs the existing episodes to append to. Do `rm -rf` only on a brand-new attempt where you want to start over.
+
+To check current episode count before deciding how many to add:
+```bash
+python3 -c "import json, pathlib; p=pathlib.Path.home()/'.cache/huggingface/lerobot/<your-repo>'/'meta/info.json'; i=json.load(open(p)); print('episodes:', i['total_episodes'], '| frames:', i['total_frames'])"
+```
 
 ## Common errors
 
