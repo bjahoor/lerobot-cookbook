@@ -26,6 +26,7 @@ Personal notes — what actually works on **my** hardware for [Hugging Face LeRo
 | [10-pc-install.md](10-pc-install.md) | PC install — lerobot 0.4.4 on Ubuntu 24.04 + Python 3.12, native (no venv), PEP 668 / `--break-system-packages` |
 | [11-pc-training.md](11-pc-training.md) | Full PC training playbook — speed test, fresh train, resume to higher step count, tmux, status, GPU monitor, Hub verify, log tricks, cleanup |
 | [12-pc-tuning.md](12-pc-tuning.md) | Measured findings on the 3060 Ti — step rates, batch/workers sweet spot, batch-16 VRAM, power cap, convergence/overfitting math |
+| [13-tmux.md](13-tmux.md) | tmux primer — sessions, prefix key, every shortcut you actually use, worked example for overnight training |
 | [99-gotchas.md](99-gotchas.md) | Everything that wasted hours and the actual fix |
 
 ## Style
