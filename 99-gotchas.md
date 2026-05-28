@@ -159,3 +159,104 @@ Some USB cameras negotiate down to YUYV (uncompressed, low fps over USB 2) if yo
 ```
 
 RealSense doesn't have this problem in lerobot — it's configured via the librealsense pipeline directly.
+
+---
+
+## 12. PEP 668 / `error: externally-managed-environment` on the PC
+
+**Symptom**: on the PC (Ubuntu 24.04), `pip install lerobot` fails with `error: externally-managed-environment`.
+
+**Cause**: Ubuntu 24.04 marks the system Python as "externally managed" (PEP 668) so people don't break their distro by pip-installing on top of apt-managed packages. It's a feature, not a bug.
+
+**Fix**: add `--break-system-packages`, don't bother with `--user`:
+```bash
+python3 -m pip install --break-system-packages "lerobot[smolvla]==0.4.4"
+```
+
+Without sudo, pip can't write to `/usr` anyway — it auto-defaults to `~/.local` (prints `Defaulting to user installation`). Same outcome, shorter command.
+
+**Never `sudo pip`.** Writes into `/usr` on top of apt-managed packages and is exactly what PEP 668 was created to prevent.
+
+---
+
+## 13. `--wandb.enable=true` crashes at startup with `No API key configured`
+
+**Symptom**: `lerobot-train` dies ~2 sec in (after printing the config) with:
+```
+wandb.errors.errors.UsageError: No API key configured. Use `wandb login` to log in.
+```
+
+**Cause**: with `--wandb.enable=true`, lerobot calls `wandb.init()` before training, which needs a stored wandb API key. If you've never `wandb login`'d on this box, no key is stored — crash.
+
+**Fix**: either log in first:
+```bash
+wandb login    # paste a key from https://wandb.ai/authorize
+```
+or set `--wandb.enable=false` (the safe default for unattended overnight runs).
+
+The crash happens before any output_dir is created, so no cleanup needed — just relaunch.
+
+---
+
+## 14. `Output directory ... already exists and resume is False`
+
+**Symptom**: re-launching a (non-resume) training run, even just bumping `--steps`, errors at startup:
+```
+ValueError: Output directory <path> already exists and resume is False.
+```
+
+**Cause**: lerobot refuses to overwrite an existing output_dir for a fresh run. Even an empty dir from a previous Ctrl+C'd attempt counts (the dir is created early, before the first step).
+
+**Fix**: either delete the dir or use a new `--output_dir` name:
+```bash
+rm -rf ~/outputs/train/<NAME>          # if no useful checkpoint inside
+# or change --output_dir=outputs/train/<NAME>_v2
+```
+
+Checkpoints are written atomically (full file or none), so deleting an output_dir that has only the startup config dump (no real checkpoint) loses nothing.
+
+---
+
+## 15. `'policy.repo_id' argument missing` at startup
+
+**Symptom**: `lerobot-train` errors immediately:
+```
+ValueError: 'policy.repo_id' argument missing. Please specify it to push the model to the hub.
+```
+
+**Cause**: ACTConfig's `push_to_hub` defaults to **true**. The config validation in `configs/train.py:141` refuses to start if `push_to_hub=true` but `repo_id` is unset — it can't push without knowing where.
+
+**Fix**: either set the destination repo:
+```
+--policy.repo_id=bjahoor/act_<TASK> --policy.private=true --policy.push_to_hub=true
+```
+or disable the push entirely (for speed tests / smoke tests):
+```
+--policy.push_to_hub=false
+```
+
+The brief `05-training.md` example is missing `repo_id` and would crash. The full command in [11-pc-training.md](11-pc-training.md) includes it.
+
+---
+
+## 16. `--steps` on a resume is the absolute total, NOT additional
+
+**Symptom**: you resume a 30k-step run with `--steps=100000` thinking "100k more," and the run only does 70k.
+
+**Cause**: lerobot's training loop is `for step in range(resumed_step, cfg.steps)` — `--steps` is the global target, not the count of new steps.
+
+**Fix**: pass the new ABSOLUTE total. To extend a 30k run by 70k, use `--steps=100000`. To then add another 100k after that, use `--steps=200000`. The progress bar will read `…/200000` starting at `~100000` — that's the "did the resume actually take" check (if it starts at 0, the resume didn't load — abort, check the `--config_path`).
+
+---
+
+## 17. "Defaulting to user installation because normal site-packages is not writeable" is fine
+
+**Symptom**: every `python3 -m pip install --break-system-packages …` prints
+```
+Defaulting to user installation because normal site-packages is not writeable
+```
+and you wonder if something's wrong.
+
+**Cause**: nothing's wrong. Without sudo, pip can't write to `/usr/lib/python3.12/site-packages` (read-only for you), so it falls back to `~/.local/lib/python3.12/site-packages`. Same place `--user` would have put it, just automatic.
+
+**Don't "fix" this** by adding sudo (dangerous — writes into `/usr`) or `--user` (just verbose for the same behavior).
