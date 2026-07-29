@@ -38,4 +38,4 @@ This is the most common failure of behavior-cloning policies (ACT, BC). The poli
 
 ## On the "loop running slower (17 Hz)" warnings
 
-**Ignore them — the loop is actually at 30 Hz.** The warning at `lerobot_record.py:423` reports the instantaneous Hz of any single tick that exceeded the budget. With ACT, one tick per 100 fires the full transformer (~60 ms = "17 Hz" reported), but the other 99 ticks just pop a cached action and run at full 30 Hz. The warning firing every ~3 seconds is just the periodic chunk-refresh. The actual loop rate is fine. See [99-gotchas.md](99-gotchas.md).
+**Ignore them — the loop is actually at 30 Hz.** The warning reports instantaneous Hz of one slow tick; with ACT, one tick per 100 fires the full transformer (~60 ms) while the other 99 run at 30 Hz. Full story + how to verify: gotcha #1.

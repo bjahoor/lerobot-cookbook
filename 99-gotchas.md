@@ -67,15 +67,18 @@ ID=1 → 25 W
 ID=2 → MAXN_SUPER  ← what you actually want
 ```
 
-On older Jetsons, mode 0 used to be MAXN. On Orin Nano Super (JetPack 6.2+) it's the 15 W profile. Always:
+On older Jetsons, mode 0 used to be MAXN. On Orin Nano Super (JetPack 6.2+) it's the 15 W profile. Set it via **jtop** (easiest — set power mode + jetson_clocks toggle in the UI) or on the CLI:
 ```bash
 sudo nvpmodel -m 2 && sudo jetson_clocks
-sudo nvpmodel -q   # verify "NV Power Mode: MAXN_SUPER"
+sudo nvpmodel -q                              # verify "NV Power Mode: MAXN_SUPER"
+grep "POWER_MODEL ID" /etc/nvpmodel.conf      # confirm the mode→name mapping on YOUR board
 ```
 
 `jetson_clocks` pins the CPU at max-for-current-mode but does NOT change the mode — so if you're in mode 0, your GPU and EMC clocks stay throttled even after `jetson_clocks`.
 
 Subtle: `jetson_clocks` keeps the governor named `schedutil`. That's by design; it pins `scaling_min_freq = scaling_max_freq` instead of changing the governor. Verify with `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq` — should equal `scaling_max_freq`.
+
+Verify the GPU clock actually came up: `tegrastats --interval 500` should show `GR3D_FREQ ... ~1020 MHz` during inference bursts. Both settings revert on reboot (re-apply each boot — jtop makes this a two-click habit).
 
 ---
 
@@ -147,7 +150,15 @@ The auto-resolved `torch` wheel on aarch64 is CPU-only. `torch.cuda.is_available
 
 **Cause**: `push_to_hub` defaults to `True` (`lerobot/configs/policies.py:70`), and `lerobot/configs/train.py:138` has an explicit check that raises if push is on but `policy.repo_id` is unset.
 
-**Fix**: either pass `--policy.repo_id=<user>/<model-name>` (so it pushes to the Hub as that repo), OR pass `--policy.push_to_hub=false` (to skip pushing and keep the model local-only). `--job_name` does NOT auto-populate `policy.repo_id` despite what you'd expect.
+**Fix**: either set the destination repo (optionally private):
+```
+--policy.repo_id=bjahoor/act_<TASK> --policy.private=true --policy.push_to_hub=true
+```
+or disable the push entirely (for speed tests / smoke tests):
+```
+--policy.push_to_hub=false
+```
+`--job_name` does NOT auto-populate `policy.repo_id` despite what you'd expect. The full working command in [11-pc-training.md](11-pc-training.md) includes it.
 
 ---
 
@@ -162,7 +173,7 @@ RealSense doesn't have this problem in lerobot — it's configured via the libre
 
 ---
 
-## 12. PEP 668 / `error: externally-managed-environment` on the PC
+## 13. PEP 668 / `error: externally-managed-environment` on the PC
 
 **Symptom**: on the PC (Ubuntu 24.04), `pip install lerobot` fails with `error: externally-managed-environment`.
 
@@ -179,7 +190,7 @@ Without sudo, pip can't write to `/usr` anyway — it auto-defaults to `~/.local
 
 ---
 
-## 13. `--wandb.enable=true` crashes at startup with `No API key configured`
+## 14. `--wandb.enable=true` crashes at startup with `No API key configured`
 
 **Symptom**: `lerobot-train` dies ~2 sec in (after printing the config) with:
 ```
@@ -198,7 +209,7 @@ The crash happens before any output_dir is created, so no cleanup needed — jus
 
 ---
 
-## 14. `Output directory ... already exists and resume is False`
+## 15. `Output directory ... already exists and resume is False`
 
 **Symptom**: re-launching a (non-resume) training run, even just bumping `--steps`, errors at startup:
 ```
@@ -214,28 +225,6 @@ rm -rf ~/outputs/train/<NAME>          # if no useful checkpoint inside
 ```
 
 Checkpoints are written atomically (full file or none), so deleting an output_dir that has only the startup config dump (no real checkpoint) loses nothing.
-
----
-
-## 15. `'policy.repo_id' argument missing` at startup
-
-**Symptom**: `lerobot-train` errors immediately:
-```
-ValueError: 'policy.repo_id' argument missing. Please specify it to push the model to the hub.
-```
-
-**Cause**: ACTConfig's `push_to_hub` defaults to **true**. The config validation in `configs/train.py:141` refuses to start if `push_to_hub=true` but `repo_id` is unset — it can't push without knowing where.
-
-**Fix**: either set the destination repo:
-```
---policy.repo_id=bjahoor/act_<TASK> --policy.private=true --policy.push_to_hub=true
-```
-or disable the push entirely (for speed tests / smoke tests):
-```
---policy.push_to_hub=false
-```
-
-The brief `05-training.md` example is missing `repo_id` and would crash. The full command in [11-pc-training.md](11-pc-training.md) includes it.
 
 ---
 

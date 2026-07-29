@@ -48,7 +48,7 @@ When prompted to set the "middle pose," move each joint to its physical center (
 
 ## Calibration error: `Magnitude X exceeds 2047`
 
-Means a joint is sitting past the encoder's wraparound seam (0 ↔ 4095). The encoder reading wrapped negative or beyond the valid range.
+Means a joint is sitting past the encoder's wraparound seam (0 ↔ 4095).
 
 **Fix**: physically reposition that joint into the middle of its range BEFORE running calibration. For the elbow specifically, the cleanest fix is:
 

@@ -1,7 +1,7 @@
 # Training ACT on the PC — the full working playbook
 
-[05-training.md](05-training.md) is the brief version. This is the actual recipes that work end-to-end on my 3060 Ti, including the parts the brief version skips:
-- the **mandatory `--policy.repo_id`** (without it, `lerobot-train` crashes at startup because `push_to_hub` defaults to true — see [99-gotchas.md](99-gotchas.md) #15)
+The recipes that work end-to-end on my 3060 Ti, including the non-obvious parts:
+- the **mandatory `--policy.repo_id`** (without it, `lerobot-train` crashes at startup because `push_to_hub` defaults to true — see [99-gotchas.md](99-gotchas.md) #11)
 - the **resume-from-checkpoint** dance (non-obvious)
 - **live status checks** + GPU monitoring
 - the `tr '\r' '\n'` trick for grepping the log
@@ -131,11 +131,17 @@ ls -R ~/outputs/train/<NAME>             # look first — confirm no useful chec
 rm -rf ~/outputs/train/<NAME>            # only if nothing valuable inside
 ```
 
-Lerobot writes checkpoints atomically (whole or absent, never half-written), so Ctrl+C never corrupts existing checkpoints — you only lose work between the last save and the cancel. **But** the `output_dir` must NOT exist when starting a non-resume run — validation refuses with `Output directory already exists and resume is False`. See [99-gotchas.md](99-gotchas.md) #14.
+Lerobot writes checkpoints atomically (whole or absent, never half-written), so Ctrl+C never corrupts existing checkpoints — you only lose work between the last save and the cancel. **But** the `output_dir` must NOT exist when starting a non-resume run — validation refuses with `Output directory already exists and resume is False`. See [99-gotchas.md](99-gotchas.md) #15.
 
 ## Disk usage planning
 
 Each ACT checkpoint dir is **~591 MB** (model 207 MB + optimizer state ~380 MB + tiny training-state files). lerobot keeps all of them — there's no rotation. For a 100k run at `save_freq=5000` that's 20 checkpoints ≈ 12 GB. Use `save_freq=20000` for long runs to keep disk in check.
+
+## Common variants & tips
+
+- **Run the policy at a lower fps than you recorded** (e.g. slower inference hardware): add `--policy.fps=20`. LeRobot downsamples the 30 fps dataset on the fly during training; the runtime must then match with `--dataset.fps=20`. This is the fix for a policy that plays back in slow-motion.
+- **Compare multiple runs without overwriting**: give each a distinct `--job_name` AND `--policy.repo_id`. Separate `output_dir` + separate Hub repo, nothing clobbered.
+- **CUDA OOM**: drop `--batch_size` (e.g. `--batch_size=4`). Batch/VRAM headroom on the 3060 Ti → [12-pc-tuning.md](12-pc-tuning.md).
 
 ## Sanity numbers (from my runs at batch 8)
 

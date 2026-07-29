@@ -17,16 +17,14 @@ Personal notes — what actually works on **my** hardware for [Hugging Face LeRo
 | File | What |
 |---|---|
 | [00-install.md](00-install.md) | Native pip install of `lerobot[all]==0.4.4` on aarch64 + CUDA PyTorch fix |
-| [01-power-and-clocks.md](01-power-and-clocks.md) | `nvpmodel` and `jetson_clocks` setup (mode 2 = MAXN_SUPER, NOT mode 0!) |
-| [02-calibration.md](02-calibration.md) | Motor ID assign + leader/follower calibration + elbow re-clocking trick |
-| [03-teleop.md](03-teleop.md) | Leader → follower teleop one-liner |
-| [04-recording.md](04-recording.md) | Dataset recording — 2 cameras at 640×480, h264 streaming encoding, resume |
-| [05-training.md](05-training.md) | `lerobot-train` ACT on the PC |
-| [06-policy-eval.md](06-policy-eval.md) | Running a trained policy on the real arm (with leader teleop for reset) |
+| [01-calibration.md](01-calibration.md) | Motor ID assign + leader/follower calibration + elbow re-clocking trick |
+| [02-teleop.md](02-teleop.md) | Leader → follower teleop one-liner |
+| [03-recording.md](03-recording.md) | Dataset recording — 2 cameras at 640×480, h264 streaming encoding, resume |
+| [04-policy-eval.md](04-policy-eval.md) | Running a trained policy on the real arm (with leader teleop for reset) |
 | [10-pc-install.md](10-pc-install.md) | PC install — lerobot 0.4.4 on Ubuntu 24.04 + Python 3.12, native (no venv), PEP 668 / `--break-system-packages` |
 | [11-pc-training.md](11-pc-training.md) | Full PC training playbook — speed test, fresh train, resume to higher step count, tmux, status, GPU monitor, Hub verify, log tricks, cleanup |
 | [12-pc-tuning.md](12-pc-tuning.md) | Measured findings on the 3060 Ti — step rates, batch/workers sweet spot, batch-16 VRAM, power cap, convergence/overfitting math |
-| [13-tmux.md](13-tmux.md) | tmux primer — sessions, prefix key, every shortcut you actually use, worked example for overnight training |
+| [13-tmux.md](13-tmux.md) | tmux essentials — detach/reattach so long runs survive disconnect |
 | [99-gotchas.md](99-gotchas.md) | Everything that wasted hours and the actual fix |
 
 ## Style

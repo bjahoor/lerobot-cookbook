@@ -79,7 +79,7 @@ Empirical: green_cap loss went **3.35 → 0.143** over 40k steps (~10.7 epochs),
 
 **Rule of thumb on 50-episode datasets:** aim for ~30–50k steps. **More episodes >> more steps** if you want a better policy.
 
-**Training loss is not the real metric.** On-robot success rate is. See [06-policy-eval.md](06-policy-eval.md).
+**Training loss is not the real metric.** On-robot success rate is. See [04-policy-eval.md](04-policy-eval.md).
 
 ## One untested speedup option
 

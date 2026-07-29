@@ -28,7 +28,7 @@ python3 -m pip install --break-system-packages "lerobot[smolvla]==0.4.4"
 
 Two things about this command:
 
-- **`--break-system-packages` is mandatory on Ubuntu 24.04** — system Python is PEP 668 "externally managed" and plain `pip install` errors out with `error: externally-managed-environment`. See [99-gotchas.md](99-gotchas.md) #12.
+- **`--break-system-packages` is mandatory on Ubuntu 24.04** — system Python is PEP 668 "externally managed" and plain `pip install` errors out with `error: externally-managed-environment`. See [99-gotchas.md](99-gotchas.md) #13.
 - **No `--user` needed.** Without sudo, pip can't write to `/usr` anyway, so it auto-defaults to `~/.local` (prints `Defaulting to user installation`). Same outcome, shorter command.
 
 **Never `sudo pip`.** That writes into `/usr` on top of apt-managed Python packages — exactly what PEP 668 was created to prevent.
@@ -70,7 +70,7 @@ Paste a token with **write** scope from https://huggingface.co/settings/tokens. 
 wandb login           # paste a key from https://wandb.ai/authorize
 ```
 
-Setting `--wandb.enable=true` without doing this crashes lerobot at startup. See [99-gotchas.md](99-gotchas.md) #13. For unattended overnight runs, leave `--wandb.enable=false` — simpler.
+Setting `--wandb.enable=true` without doing this crashes lerobot at startup. See [99-gotchas.md](99-gotchas.md) #14. For unattended overnight runs, leave `--wandb.enable=false` — simpler.
 
 ## What's next
 

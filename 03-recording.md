@@ -1,11 +1,11 @@
 # Recording a dataset
 
-Recipe for the 50-episode `yellow_block` dataset (yellow block → white plate), 2 cameras at 640×480, h264 video, streaming encoding to avoid RealSense timeouts.
+Recipe for a 2-camera 640×480 dataset with h264 streaming encoding (avoids RealSense timeouts).
 
 ## Pre-flight
 
 ```bash
-sudo nvpmodel -m 2 && sudo jetson_clocks    # see 01-power-and-clocks.md
+sudo nvpmodel -m 2 && sudo jetson_clocks    # or set via jtop; see gotcha #4
 ```
 
 ## Recording command (1 line, dataset gets created)
@@ -54,9 +54,9 @@ python3 -c "import json, pathlib; p=pathlib.Path.home()/'.cache/huggingface/lero
 
 ## Common errors
 
-- **`FileExistsError`**: dataset folder from a prior failed attempt. Run `rm -rf ~/.cache/huggingface/lerobot/<repo_id>` then re-run from scratch (NOT with `--resume`).
-- **`TimeoutError: latest frame is too old: 5XX ms (max allowed: 500 ms)`**: the streaming-encoding flag wasn't on, or the Jetson is otherwise CPU-saturated. Verify flags. Confirm jetson_clocks is on.
-- **`ConnectionError: ... There is no status packet!` / `Incorrect status packet!`**: a motor isn't responding. Reseat cables at that motor and check power. See [02-calibration.md](02-calibration.md).
+- **`FileExistsError`**: dataset folder from a prior failed attempt. Run `rm -rf ~/.cache/huggingface/lerobot/<repo_id>` then re-run from scratch (NOT with `--resume`). Full story: gotcha #8.
+- **`TimeoutError: latest frame is too old: 5XX ms (max allowed: 500 ms)`**: the streaming-encoding flag wasn't on, or the Jetson is otherwise CPU-saturated. Verify flags. Confirm jetson_clocks is on. Full story: gotcha #5.
+- **`ConnectionError: ... There is no status packet!` / `Incorrect status packet!`**: a motor isn't responding. Reseat cables at that motor and check power. See [01-calibration.md](01-calibration.md).
 
 ## Deleting bad episodes (without losing the good ones)
 

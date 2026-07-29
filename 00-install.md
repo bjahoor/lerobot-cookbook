@@ -76,5 +76,3 @@ Expected: `2.10.0+cu126 True Orin`
 ```bash
 lerobot-record --help | head -5
 ```
-
-If it prints help, you're good.
