@@ -74,5 +74,5 @@ Setting `--wandb.enable=true` without doing this crashes lerobot at startup. See
 
 ## What's next
 
-- Comprehensive training playbook → [11-pc-training.md](11-pc-training.md)
-- Measured tuning findings (batch, workers, power cap) → [12-pc-tuning.md](12-pc-tuning.md)
+- Comprehensive training playbook → [06-pc-training.md](06-pc-training.md)
+- Measured tuning findings (batch, workers, power cap) → [07-pc-tuning.md](07-pc-tuning.md)

@@ -158,7 +158,7 @@ or disable the push entirely (for speed tests / smoke tests):
 ```
 --policy.push_to_hub=false
 ```
-`--job_name` does NOT auto-populate `policy.repo_id` despite what you'd expect. The full working command in [11-pc-training.md](11-pc-training.md) includes it.
+`--job_name` does NOT auto-populate `policy.repo_id` despite what you'd expect. The full working command in [06-pc-training.md](06-pc-training.md) includes it.
 
 ---
 

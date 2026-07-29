@@ -6,7 +6,7 @@ The recipes that work end-to-end on my 3060 Ti, including the non-obvious parts:
 - **live status checks** + GPU monitoring
 - the `tr '\r' '\n'` trick for grepping the log
 
-Install: [10-pc-install.md](10-pc-install.md). Tuning conclusions (batch/workers/etc.): [12-pc-tuning.md](12-pc-tuning.md).
+Install: [05-pc-install.md](05-pc-install.md). Tuning conclusions (batch/workers/etc.): [07-pc-tuning.md](07-pc-tuning.md).
 
 ## Speed test — measure rate, persist nothing
 
@@ -141,7 +141,7 @@ Each ACT checkpoint dir is **~591 MB** (model 207 MB + optimizer state ~380 MB +
 
 - **Run the policy at a lower fps than you recorded** (e.g. slower inference hardware): add `--policy.fps=20`. LeRobot downsamples the 30 fps dataset on the fly during training; the runtime must then match with `--dataset.fps=20`. This is the fix for a policy that plays back in slow-motion.
 - **Compare multiple runs without overwriting**: give each a distinct `--job_name` AND `--policy.repo_id`. Separate `output_dir` + separate Hub repo, nothing clobbered.
-- **CUDA OOM**: drop `--batch_size` (e.g. `--batch_size=4`). Batch/VRAM headroom on the 3060 Ti → [12-pc-tuning.md](12-pc-tuning.md).
+- **CUDA OOM**: drop `--batch_size` (e.g. `--batch_size=4`). Batch/VRAM headroom on the 3060 Ti → [07-pc-tuning.md](07-pc-tuning.md).
 
 ## Sanity numbers (from my runs at batch 8)
 
@@ -150,4 +150,4 @@ Each ACT checkpoint dir is **~591 MB** (model 207 MB + optimizer state ~380 MB +
 | `bjahoor/so101_green_cap` | 1 wrist | 1280×720 AV1 | **2.9** | ~10 h |
 | `bjahoor/so101_yellow_block` | 2 (wrist + overhead) | 480×640 H.264 | **4.35** | ~6.4 h |
 
-More detail and the "why" behind these numbers → [12-pc-tuning.md](12-pc-tuning.md).
+More detail and the "why" behind these numbers → [07-pc-tuning.md](07-pc-tuning.md).
