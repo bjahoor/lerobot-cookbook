@@ -25,6 +25,7 @@ Personal notes — what actually works on **my** hardware for [Hugging Face LeRo
 | [11-pc-training.md](11-pc-training.md) | Full PC training playbook — speed test, fresh train, resume to higher step count, tmux, status, GPU monitor, Hub verify, log tricks, cleanup |
 | [12-pc-tuning.md](12-pc-tuning.md) | Measured findings on the 3060 Ti — step rates, batch/workers sweet spot, batch-16 VRAM, power cap, convergence/overfitting math |
 | [13-tmux.md](13-tmux.md) | tmux essentials — detach/reattach so long runs survive disconnect |
+| [14-camera-view.md](14-camera-view.md) | View a camera headless over Tailscale (ustreamer) to position/focus it |
 | [99-gotchas.md](99-gotchas.md) | Everything that wasted hours and the actual fix |
 
 ## Style
