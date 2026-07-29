@@ -48,6 +48,12 @@ No SSH tunnel needed over Tailscale. (Plain SSH instead? Forward the port: `ssh 
 pkill -f ustreamer
 ```
 
+## Streaming DURING teleop is fine (recording is not)
+
+`lerobot-teleoperate` opens **no cameras** (the teleop command has no `--robot.cameras`), so you can run ustreamer on the wrist or overhead cam at the same time — e.g. watch the wrist view in your browser while you drive the arm. No device conflict.
+
+`lerobot-record` **does** open the cameras, so ustreamer must be stopped before recording (step 4 above). Rule of thumb: **teleop = stream freely; record = stop the stream first.**
+
 ## Note — the enumeration flip also affects your record command
 
 If the RealSense grabbed `/dev/video0–5` this boot, your **wrist cam is `index_or_path: 6`**, not 0. The RealSense is addressed by serial (unaffected), but the OpenCV wrist cam is addressed by index — double-check it against `v4l2-ctl --list-devices` before recording, or you'll capture the wrong camera.
