@@ -31,8 +31,8 @@ Numbered in the order you actually do them, start to finish.
 | File | What |
 |---|---|
 | [05-pc-install.md](05-pc-install.md) | PC install — lerobot 0.4.4 on Ubuntu 24.04 + Python 3.12, native (no venv), PEP 668 / `--break-system-packages` |
-| [06-pc-training.md](06-pc-training.md) | Full PC training playbook — speed test, fresh train, resume to higher step count, status, GPU monitor, Hub verify, log tricks, cleanup |
-| [07-pc-tuning.md](07-pc-tuning.md) | Measured findings on the 3060 Ti — step rates, batch/workers sweet spot, batch-16 VRAM, power cap, convergence/overfitting math |
+| [06-pc-training.md](06-pc-training.md) | Full PC training playbook — speed test, fresh train, resume to higher step count, SmolVLA finetuning, status, GPU monitor, Hub verify, log tricks, cleanup |
+| [07-pc-tuning.md](07-pc-tuning.md) | Measured findings on the 3060 Ti — step rates, ACT vs SmolVLA, batch/workers sweet spot, batch-16 VRAM, power cap, convergence/overfitting math |
 
 **Jetson — deployment**
 
@@ -51,4 +51,4 @@ Numbered in the order you actually do them, start to finish.
 
 These files are working command recipes for THIS hardware. They are NOT a polished tutorial. If something here saves you a frustrating evening of debugging, great.
 
-Last updated: 2026-07-29
+Last updated: 2026-07-31

@@ -137,6 +137,32 @@ Lerobot writes checkpoints atomically (whole or absent, never half-written), so 
 
 Each ACT checkpoint dir is **~591 MB** (model 207 MB + optimizer state ~380 MB + tiny training-state files). lerobot keeps all of them — there's no rotation. For a 100k run at `save_freq=5000` that's 20 checkpoints ≈ 12 GB. Use `save_freq=20000` for long runs to keep disk in check.
 
+## Finetuning SmolVLA instead of ACT
+
+The ACT recipe above does **not** work with `--policy.type` swapped. Three flags must change.
+
+```bash
+lerobot-train \
+  --policy.path=lerobot/smolvla_base --dataset.repo_id=<DATASET> \
+  --rename_map='{"observation.images.wrist": "observation.images.camera1", "observation.images.overhead": "observation.images.camera2"}' \
+  --policy.empty_cameras=1 \
+  --policy.repo_id=bjahoor/smolvla_<TASK> --policy.private=true --policy.push_to_hub=true \
+  --batch_size=8 --steps=<N> --save_freq=20000 --num_workers=8 --log_freq=10000 \
+  --policy.scheduler_decay_steps=<N> \
+  --policy.device=cuda --policy.use_amp=true \
+  --dataset.image_transforms.enable=true --save_checkpoint=true \
+  --output_dir=outputs/train/<NAME>_smolvla --job_name=<NAME>_smolvla \
+  --wandb.enable=false
+```
+
+- `--policy.path=lerobot/smolvla_base` — not `--policy.type=smolvla`, which trains from scratch ([99-gotchas.md](99-gotchas.md) #19)
+- `--rename_map` + `--policy.empty_cameras=1` — base expects 3 cameras named `camera1/2/3` ([99-gotchas.md](99-gotchas.md) #18)
+- `--policy.scheduler_decay_steps=<N>` — set equal to `--steps`; stock decay ends at 30k and can't be extended on a resume ([99-gotchas.md](99-gotchas.md) #20)
+
+2.38 step/s at batch 8 → ~17.5 h for 150k, vs 9.4 h for ACT. Numbers → [07-pc-tuning.md](07-pc-tuning.md).
+
+**Untested**: whether a 450M policy hits 30 fps on the Orin Nano (ACT is ~50M). Check before spending 17 h — [99-gotchas.md](99-gotchas.md) #6.
+
 ## Common variants & tips
 
 - **Run the policy at a lower fps than you recorded** (e.g. slower inference hardware): add `--policy.fps=20`. LeRobot downsamples the 30 fps dataset on the fly during training; the runtime must then match with `--dataset.fps=20`. This is the fix for a policy that plays back in slow-motion.

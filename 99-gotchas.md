@@ -249,3 +249,51 @@ and you wonder if something's wrong.
 **Cause**: nothing's wrong. Without sudo, pip can't write to `/usr/lib/python3.12/site-packages` (read-only for you), so it falls back to `~/.local/lib/python3.12/site-packages`. Same place `--user` would have put it, just automatic.
 
 **Don't "fix" this** by adding sudo (dangerous — writes into `/usr`) or `--user` (just verbose for the same behavior).
+
+---
+
+## 18. SmolVLA dies at startup on camera names — `Feature mismatch`
+
+**Symptom**: finetuning `lerobot/smolvla_base` on a dataset recorded with my normal camera names crashes ~10 s in, before the GPU is ever touched:
+```
+ValueError: Feature mismatch between dataset/environment and policy config.
+- Missing features: ['observation.images.camera1', 'observation.images.camera2', 'observation.images.camera3']
+- Extra features: ['observation.images.overhead', 'observation.images.wrist']
+```
+
+**Cause**: two mismatches at once. `smolvla_base` bakes the camera names `camera1/2/3` into its config (ACT doesn't — it builds features from the dataset), and it expects **3** cameras where I record **2**.
+
+**Fix**: rename, and pad the third:
+```bash
+--rename_map='{"observation.images.wrist": "observation.images.camera1", "observation.images.overhead": "observation.images.camera2"}' \
+--policy.empty_cameras=1
+```
+Both are required — the rename alone still leaves `camera3` missing. This fails before allocating VRAM, so a startup crash is never the OOM you were expecting; a real OOM appears a few steps into the progress bar.
+
+---
+
+## 19. `--policy.type=smolvla` trains from scratch — you almost never want it
+
+**Symptom**: SmolVLA "trains" fine but the policy is garbage, far worse than ACT on the same data.
+
+**Cause**: `--policy.type=smolvla` builds a fresh config, and `SmolVLAConfig.load_vlm_weights` defaults to **`False`** — a randomly-initialized 450M model learning from 22k frames. All of SmolVLA's cost, none of its pretrained knowledge.
+
+**Fix**: finetune the published base checkpoint instead:
+```bash
+--policy.path=lerobot/smolvla_base      # NOT --policy.type=smolvla
+```
+Startup should log `num_total_params=450M` with `num_learnable_params=100M`. Learnable ≈ total means nothing was frozen — you're on the from-scratch path.
+
+---
+
+## 20. SmolVLA's LR schedule ends at 30k — long runs silently stop learning
+
+**Symptom**: a long SmolVLA run's loss goes flat far earlier than the step count suggests it should.
+
+**Cause**: unlike ACT (constant `lr=1e-5`, no scheduler), SmolVLA uses cosine decay with warmup: `scheduler_warmup_steps=1000`, `scheduler_decay_steps=30000`, decaying to `scheduler_decay_lr=2.5e-6` from a base `optimizer_lr=1e-4`. Past step 30k the LR sits on the floor — a 150k-step run spends 120k steps barely moving.
+
+**Fix**: match the decay to the intended total at launch:
+```bash
+--steps=150000 --policy.scheduler_decay_steps=150000
+```
+The curve is baked in at launch, so pick the real step count up front. The resume-and-extend trick in [06-pc-training.md](06-pc-training.md) is clean on ACT *because* ACT has no scheduler — extending a SmolVLA run past `decay_steps` just resumes at the LR floor.

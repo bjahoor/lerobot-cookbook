@@ -23,6 +23,22 @@ For commands → [06-pc-training.md](06-pc-training.md).
 
 Counter-intuitive but true: **yellow_block is faster despite the extra camera**. Lower total pixel count (614k vs 921k) and H.264 decoding way faster than AV1 outweigh the second backbone pass.
 
+## SmolVLA vs ACT — measured, same dataset
+
+`green_block` (50 episodes, 22,416 frames, 2 cams 480×640 H.264), batch 8:
+
+| | ACT | SmolVLA (finetuned from `smolvla_base`) |
+|---|---|---|
+| step/s | 4.4 | **2.38** |
+| `updt_s` / `data_s` | 0.22 / 0.008 | **0.42 / 0.022** |
+| peak VRAM | 4.7 GB | **4.0 GB** |
+| params (learnable / total) | ~50M | **100M / 450M** |
+| 150k wall clock | 9.4 h (measured) | **~17.5 h (projected)** |
+
+~1.8× slower per step but uses **less** VRAM — `freeze_vision_encoder=True` and `train_expert_only=True` are defaults, so only the 100M action expert gets gradients + optimizer state. Still compute-bound, so `--num_workers=8` holds.
+
+Commands → [06-pc-training.md](06-pc-training.md).
+
 ## GPU is compute-bound, not data-bound
 
 Per-step time = `data_s` (dataloader wait) + `updt_s` (GPU compute), overlapped. With 8 workers, `data_s` is single-digit milliseconds while `updt_s` is 200–340 ms — a **~30× ratio**. The GPU is the bottleneck, full stop.
