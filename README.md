@@ -15,13 +15,13 @@ Portfolio of the build + my working command reference.
 ## Pipeline
 
 ```
- ┌────────────┐     ┌────────────┐     ┌────────────┐     ┌────────────┐
- │ TELEOPERATE│ ──► │   RECORD   │ ──► │    TRAIN   │ ──► │   DEPLOY   │
- │   demos    │     │ multi-cam  │     │ ACT/SmolVLA│     │ & run 30Hz │
- │  ·Jetson·  │     │  ·Jetson·  │     │ ·3060 Ti·  │     │  ·Jetson·  │
- └────────────┘     └────────────┘     └────────────┘     └─────┬──────┘
-        ▲                                                       │
-        └────────────────────  more demos ◄  ───────────────────┘
+ ┌────────────┐     ┌────────────┐     ┌─────────────┐     ┌────────────┐
+ │ TELEOPERATE│ ──► │   RECORD   │ ──► │    TRAIN    │ ──► │   DEPLOY   │
+ │   demos    │     │ multi-cam  │     │ ACT/SmolVLA │     │ & run 30Hz │
+ │  ·Jetson·  │     │  ·Jetson·  │     │  ·3060 Ti·  │     │  ·Jetson·  │
+ └────────────┘     └────────────┘     └─────────────┘     └─────┬──────┘
+        ▲                                                        │
+        └────────────────────  more demos ◄  ────────────────────┘
 ```
 
 ## The stack
