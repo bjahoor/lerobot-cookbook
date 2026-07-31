@@ -1,18 +1,40 @@
-# lerobot-cookbook
+# 🦾 lerobot-cookbook
 
-Personal notes — what actually works on **my** hardware for [Hugging Face LeRobot](https://github.com/huggingface/lerobot) imitation learning.
+**End-to-end imitation learning on a real SO-101 arm:** teleoperate demos → train [ACT](https://github.com/huggingface/lerobot) / SmolVLA on a GPU → deploy to a headless Jetson that drives the arm in closed loop.
 
-## My setup
+Portfolio of the build + my working command reference.
+
+## What I built
+
+- Working pick-and-place policy on a real SO-101 arm — demos → trained ACT → autonomous execution
+- Multi-camera demo datasets (wrist + RealSense), 50–100 episodes/task, on the HuggingFace Hub
+- Real 30 Hz closed-loop control on a Jetson Orin Nano (edge hardware)
+- Split train/deploy: RTX 3060 Ti trains, Jetson runs; ~20 platform gotchas solved ([99-gotchas.md](99-gotchas.md))
+- Now exploring SmolVLA finetuning on the same data
+
+## Pipeline
+
+```
+ ┌────────────┐     ┌────────────┐     ┌────────────┐     ┌────────────┐
+ │ TELEOPERATE│ ──► │   RECORD   │ ──► │    TRAIN   │ ──► │   DEPLOY   │
+ │   demos    │     │ multi-cam  │     │ ACT/SmolVLA│     │ & run 30Hz │
+ │  ·Jetson·  │     │  ·Jetson·  │     │ ·3060 Ti·  │     │  ·Jetson·  │
+ └────────────┘     └────────────┘     └────────────┘     └─────┬──────┘
+        ▲                                                       │
+        └────────────────────  more demos ◄  ───────────────────┘
+```
+
+## The stack
 
 - **Compute**: NVIDIA Jetson Orin Nano "Super" (8 GB), JetPack 6.2.2, L4T R36.5.0, CUDA 12.6
-- **Python**: system 3.10.12, `pip --user` (no venv/conda)
+- **Python**: system 3.10.12, native `pip --user` (no venv/conda)
 - **LeRobot**: 0.4.4 (highest version supporting Python 3.10 — 0.5.0+ needs 3.12)
-- **Arms**: SO-101 leader + follower (Feetech STS3215 motors)
-- **Cameras**: USB wrist cam (`/dev/video0`, MJPG) + Intel RealSense D435 overhead (color only, addressed by serial number)
+- **Arms**: SO-101 leader + follower (Feetech STS3215 servos)
+- **Cameras**: USB wrist cam (MJPG) + Intel RealSense D435 overhead (color, addressed by serial)
 - **Training rig**: separate PC with NVIDIA RTX 3060 Ti
-- **Access**: Jetson is headless, accessed via Cursor remote over Tailscale (`100.82.20.54`)
+- **Access**: Jetson runs headless, over Tailscale SSH
 
-## Files
+## The playbook
 
 Numbered in the order you actually do them, start to finish.
 
@@ -47,8 +69,8 @@ Numbered in the order you actually do them, start to finish.
 | [09-tmux.md](09-tmux.md) | tmux essentials — detach/reattach so long runs survive disconnect |
 | [99-gotchas.md](99-gotchas.md) | Everything that wasted hours and the actual fix |
 
-## Style
+## Notes
 
-These files are working command recipes for THIS hardware. They are NOT a polished tutorial. If something here saves you a frustrating evening of debugging, great.
+Working command recipes for THIS hardware — not a polished tutorial. If something here saves you (or future me) a frustrating evening of debugging, great.
 
 Last updated: 2026-07-31
