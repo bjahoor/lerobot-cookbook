@@ -4,13 +4,25 @@
 
 Portfolio of the build + my working command reference.
 
+![SO-101 + Jetson setup](setup.jpg)
+
 ## What I built
 
 - Working pick-and-place policy on a real SO-101 arm — demos → trained ACT → autonomous execution
 - Multi-camera demo datasets (wrist + RealSense), 50–100 episodes/task, on the HuggingFace Hub
 - Real 30 Hz closed-loop control on a Jetson Orin Nano (edge hardware)
-- Split train/deploy: RTX 3060 Ti trains, Jetson runs; ~20 platform gotchas solved ([99-gotchas.md](99-gotchas.md))
-- Now exploring SmolVLA finetuning on the same data
+- Split train/deploy: RTX 3060 Ti trains, Jetson runs; 21 platform gotchas solved ([99-gotchas.md](99-gotchas.md))
+- Trained **+ deployed SmolVLA** (450M vision-language-action) on the same data — runs on the Jetson at ~17.5 Hz
+
+## Demos
+
+**ACT** — smooth, steady 30 Hz:
+
+https://github.com/bjahoor/lerobot-cookbook/raw/main/act_demo.mp4
+
+**SmolVLA** — ~17.5 Hz, moves in chunks (~1 s inference freeze → burst):
+
+https://github.com/bjahoor/lerobot-cookbook/raw/main/smolvla_demo.mp4
 
 ## Pipeline
 
@@ -73,4 +85,4 @@ Numbered in the order you actually do them, start to finish.
 
 Working command recipes for THIS hardware — not a polished tutorial. If something here saves you (or future me) a frustrating evening of debugging, great.
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01

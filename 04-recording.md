@@ -14,6 +14,8 @@ sudo nvpmodel -m 2 && sudo jetson_clocks    # or set via jtop; see gotcha #4
 lerobot-record --robot.type=so101_follower --robot.port=/dev/ttyACM0 --robot.cameras="{ wrist: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30, fourcc: MJPG}, overhead: {type: intelrealsense, serial_number_or_name: '135622077272', width: 640, height: 480, fps: 30}}" --teleop.type=so101_leader --teleop.port=/dev/ttyACM1 --dataset.repo_id=bjahoor/so101_yellow_block --dataset.single_task="Pick up the yellow block and place it on the white plate" --dataset.num_episodes=50 --dataset.fps=30 --dataset.episode_time_s=15 --dataset.reset_time_s=5 --dataset.vcodec=h264 --dataset.streaming_encoding=true --dataset.encoder_threads=1 --play_sounds=false
 ```
 
+> **⚠ Wrist `index_or_path` is boot-dependent.** If the RealSense enumerates first it grabs `/dev/video0–5`, pushing the wrist cam to `6` (not `0`). Verify with `v4l2-ctl --list-devices` (see [03-camera-view.md](03-camera-view.md)) before recording, or use the flip-proof by-id path instead of a number: `index_or_path: /dev/v4l/by-id/usb-...CAM1...-video-index0`.
+
 ## Key flags (and why each one matters)
 
 | Flag | Why |

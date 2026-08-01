@@ -161,7 +161,7 @@ lerobot-train \
 
 2.38 step/s at batch 8 → ~17.5 h for 150k, vs 9.4 h for ACT. Numbers → [07-pc-tuning.md](07-pc-tuning.md).
 
-**Untested**: whether a 450M policy hits 30 fps on the Orin Nano (ACT is ~50M). Check before spending 17 h — [99-gotchas.md](99-gotchas.md) #6.
+**On-Jetson speed (measured):** ~17.5 Hz and choppy — the 450M VLM's ~1 s inference can't keep up with real-time (ACT is ~50M, clean 30 Hz). Full deploy command + the async-inference fix → [08-policy-eval.md](08-policy-eval.md).
 
 ## Common variants & tips
 
