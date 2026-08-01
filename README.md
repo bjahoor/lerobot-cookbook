@@ -84,5 +84,3 @@ Numbered in the order you actually do them, start to finish.
 ## Notes
 
 Working command recipes for THIS hardware — not a polished tutorial. If something here saves you (or future me) a frustrating evening of debugging, great.
-
-Last updated: 2026-08-01
