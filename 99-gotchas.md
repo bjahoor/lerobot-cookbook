@@ -297,3 +297,17 @@ Startup should log `num_total_params=450M` with `num_learnable_params=100M`. Lea
 --steps=150000 --policy.scheduler_decay_steps=150000
 ```
 The curve is baked in at launch, so pick the real step count up front. The resume-and-extend trick in [06-pc-training.md](06-pc-training.md) is clean on ACT *because* ACT has no scheduler — extending a SmolVLA run past `decay_steps` just resumes at the LR floor.
+
+---
+
+## 21. `--rename_map` does NOT remap a live robot at inference (deploy-time camera fix)
+
+**Symptom**: deploying SmolVLA on the real arm (`lerobot-record --policy.path=<smolvla> ...`) crashes with the same `Feature mismatch` as gotcha #18 — robot provides `wrist`/`overhead`, policy wants `camera1/2/3` — even with `--dataset.rename_map='{...}'` set. The map is parsed but validation still fails.
+
+**Cause**: `rename_map` renames keys of the *recorded dataset*, not the *live robot observation* that `make_policy` validates against. Gotcha #18's rename_map fix works for **training** (dataset-side); it does nothing at **deployment**.
+
+**Fix**: name the robot's cameras to match the policy directly in `--robot.cameras`:
+```
+--robot.cameras="{ camera1: {type: opencv, ...}, camera2: {type: intelrealsense, ...} }"
+```
+Providing 2 of the expected 3 passes validation (provided ⊆ expected), and `empty_cameras` pads the rest. Full deploy command + the resulting ~17.5 Hz choppy behavior: [08-policy-eval.md](08-policy-eval.md).

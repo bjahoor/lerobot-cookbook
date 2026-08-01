@@ -36,6 +36,19 @@ This is the most common failure of behavior-cloning policies (ACT, BC). The poli
 
 **Fix**: drive the follower to the SAME starting pose your training demos started from (using the leader during reset, or by hand before the run starts) and retry. If it still freezes from a known good starting pose, it's a policy quality issue — retrain with more demos.
 
+## Running SmolVLA instead of ACT
+
+Two changes from the ACT command:
+
+1. **Name the robot cameras `camera1`/`camera2`** (not `wrist`/`overhead`). `smolvla_base` bakes in the names `camera1/2/3`; at inference the robot must hand over matching keys. **`--rename_map` does NOT fix this at deploy time** — it only renames the recorded dataset, not the live observation the policy validates against (see gotcha #21). Rename at the source. Providing 2 of the expected 3 passes validation (subset), and SmolVLA's `empty_cameras=1` pads the 3rd.
+2. **Point `--policy.path` at the SmolVLA model.**
+
+```bash
+lerobot-record --robot.type=so101_follower --robot.port=/dev/ttyACM0 --robot.cameras="{ camera1: {type: opencv, index_or_path: 6, width: 640, height: 480, fps: 30, fourcc: MJPG}, camera2: {type: intelrealsense, serial_number_or_name: '135622077272', width: 640, height: 480, fps: 30}}" --teleop.type=so101_leader --teleop.port=/dev/ttyACM1 --dataset.repo_id=bjahoor/eval_smolvla_green --dataset.single_task="Pick up the green block and place it on the brown circle" --dataset.num_episodes=5 --dataset.fps=30 --dataset.episode_time_s=30 --dataset.reset_time_s=15 --dataset.vcodec=h264 --dataset.streaming_encoding=true --dataset.encoder_threads=1 --policy.path=bjahoor/smolvla_so101_green_block --policy.device=cuda --display_data=false --play_sounds=false
+```
+
+**Measured on the Orin Nano: ~17.5 Hz, and choppy** (vs ACT's clean 30 Hz). SmolVLA predicts a chunk of `n_action_steps=50` actions per inference, and each inference of the 500M VLM takes **~1 s** on the Jetson. So the arm moves in **big discrete chunks**: hold ~1 s (inference) → burst through the queued actions (the loop catches up after the freeze) → repeat. ACT looks smooth because its inference is ~56 ms; SmolVLA's ~1 s makes the chunking visible. **To smooth it: async inference** — run the model on the PC, stream action chunks to the Jetson, which plays the queue at a steady 30 Hz with no on-device freeze.
+
 ## On the "loop running slower (17 Hz)" warnings
 
 **Ignore them — the loop is actually at 30 Hz.** The warning reports instantaneous Hz of one slow tick; with ACT, one tick per 100 fires the full transformer (~60 ms) while the other 99 run at 30 Hz. Full story + how to verify: gotcha #1.

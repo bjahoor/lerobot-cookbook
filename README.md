@@ -60,7 +60,7 @@ Numbered in the order you actually do them, start to finish.
 
 | File | What |
 |---|---|
-| [08-policy-eval.md](08-policy-eval.md) | Running a trained policy on the real arm (with leader teleop for reset) |
+| [08-policy-eval.md](08-policy-eval.md) | Running a trained policy on the real arm (ACT + SmolVLA; leader teleop for reset) |
 
 **Reference**
 
